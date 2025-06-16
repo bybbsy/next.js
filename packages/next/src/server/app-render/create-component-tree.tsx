@@ -1028,7 +1028,9 @@ function normalizeConventionFilePath(
   projectDir: string,
   conventionPath: string | undefined
 ) {
-  const relativePath = (conventionPath || '')
+  const nextInternalPrefixRegex =
+    /^next[\\/]dist[\\/]client[\\/]components[\\/]/
+  let relativePath = (conventionPath || '')
     // remove turbopack [project] prefix
     .replace(/^\[project\][\\/]/, '')
     // remove the process.cwd() prefix
@@ -1036,7 +1038,16 @@ function normalizeConventionFilePath(
     // remove the project root from the path
     .replace(projectDir, '')
     // remove /(src/)?app/ dir prefix
-    .replace(/^[\\/](src[\\/])?app[\\/]/, '')
+    .replace(/^([\\/]*)?(src[\\/])?app[\\/]/, '')
+
+  if (nextInternalPrefixRegex.test(relativePath)) {
+    relativePath = relativePath.replace(nextInternalPrefixRegex, '')
+    if (relativePath === 'not-found-error') {
+      // Special case for the built-in not-found-error convention file
+      // which is used to render the 404 page.
+      relativePath = '*not-found'
+    }
+  }
 
   return relativePath
 }

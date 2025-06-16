@@ -95,7 +95,9 @@ function PageSegmentTreeLayerPresentation({
           }}
         >
           <div className="segment-explorer-line">
-            <div className={`segment-explorer-line-text-${nodeName}`}>
+            <div
+              className={`segment-explorer-line-text-${nodeName ?? '<folder>'}`}
+            >
               <div className="segment-explorer-filename">
                 {folderName && (
                   <span className="segment-explorer-filename--path">
@@ -167,7 +169,6 @@ export function SegmentsExplorer(
 
 export const DEV_TOOLS_INFO_RENDER_FILES_STYLES = css`
   .segment-explorer-content {
-    overflow-y: auto;
     font-size: var(--size-14);
     margin: -12px -8px;
   }
@@ -217,7 +218,7 @@ export const DEV_TOOLS_INFO_RENDER_FILES_STYLES = css`
   .segment-explorer-files {
     display: inline-flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 8px;
   }
 
   .segment-explorer-file-label {
@@ -225,6 +226,7 @@ export const DEV_TOOLS_INFO_RENDER_FILES_STYLES = css`
     border-radius: 16px;
     font-size: var(--size-12);
     line-height: 16px;
+    font-weight: 500;
   }
   .segment-explorer-file-label--layout,
   .segment-explorer-file-label--template {
@@ -232,7 +234,7 @@ export const DEV_TOOLS_INFO_RENDER_FILES_STYLES = css`
     color: var(--color-gray-1000);
   }
   .segment-explorer-file-label--page {
-    background-color: var(--color-blue-100);
+    background-color: var(--color-blue-300);
     color: var(--color-blue-800);
   }
 `

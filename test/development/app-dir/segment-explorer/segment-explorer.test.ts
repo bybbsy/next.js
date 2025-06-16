@@ -95,4 +95,13 @@ describe('segment-explorer', () => {
      page.tsx"
     `)
   })
+
+  it('should handle special built-in not-found segments', async () => {
+    const browser = await next.browser('/404')
+    expect(await getSegmentExplorerContent(browser)).toMatchInlineSnapshot(`
+     "app/
+     layout.tsx
+     *not-found"
+    `)
+  })
 })
