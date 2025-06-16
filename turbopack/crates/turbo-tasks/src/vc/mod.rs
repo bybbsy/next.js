@@ -31,7 +31,7 @@ pub use self::{
     traits::{Dynamic, Upcast, VcValueTrait, VcValueType},
 };
 use crate::{
-    CellId, RawVc, ResolveTypeError,
+    CellId, IntoTraitRef, RawVc, ResolveTypeError,
     debug::{ValueDebug, ValueDebugFormat, ValueDebugFormatString},
     registry,
     trace::{TraceRawVcs, TraceRawVcsContext},
@@ -563,7 +563,9 @@ where
     fn value_debug_format(&self, depth: usize) -> ValueDebugFormatString {
         ValueDebugFormatString::Async(Box::pin(async move {
             Ok({
-                let vc_value_debug = Vc::upcast::<Box<dyn ValueDebug>>(*self);
+                let vc_value_debug = Vc::upcast::<Box<dyn ValueDebug>>(*self)
+                    .into_trait_ref()
+                    .await?;
                 vc_value_debug.dbg_depth(depth).await?.to_string()
             })
         }))

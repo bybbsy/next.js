@@ -21,10 +21,7 @@ pub use crate::{
 #[inline(never)]
 pub async fn value_debug_format_field(value: ValueDebugFormatString<'_>) -> String {
     match value.try_to_value_debug_string().await {
-        Ok(result) => match result.await {
-            Ok(result) => result.to_string(),
-            Err(err) => format!("{err:?}"),
-        },
+        Ok(result) => result.to_string(),
         Err(err) => format!("{err:?}"),
     }
 }

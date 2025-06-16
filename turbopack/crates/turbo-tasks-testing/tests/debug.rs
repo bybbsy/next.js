@@ -13,7 +13,7 @@ static REGISTRATION: Registration = register!();
 async fn primitive_debug() {
     run(&REGISTRATION, || async {
         let a: Vc<u32> = Vc::cell(42);
-        assert_eq!(format!("{:?}", a.dbg().await?), "42");
+        assert_eq!(format!("{:?}", a.await?.dbg().await?), "42");
         anyhow::Ok(())
     })
     .await
@@ -24,7 +24,7 @@ async fn primitive_debug() {
 async fn transparent_debug() {
     run(&REGISTRATION, || async {
         let a: Vc<Transparent> = Transparent(42).cell();
-        assert_eq!(format!("{:?}", a.dbg().await?), "42");
+        assert_eq!(format!("{:?}", a.await?.dbg().await?), "42");
 
         anyhow::Ok(())
     })
@@ -36,7 +36,7 @@ async fn transparent_debug() {
 async fn enum_none_debug() {
     run(&REGISTRATION, || async {
         let a: Vc<Enum> = Enum::None.cell();
-        assert_eq!(format!("{:?}", a.dbg().await?), "Enum :: None");
+        assert_eq!(format!("{:?}", a.await?.dbg().await?), "Enum :: None");
 
         anyhow::Ok(())
     })
@@ -49,7 +49,7 @@ async fn enum_transparent_debug() {
     run(&REGISTRATION, || async {
         let a: Vc<Enum> = Enum::Transparent(Transparent(42).resolved_cell()).cell();
         assert_eq!(
-            format!("{:?}", a.dbg().await?),
+            format!("{:?}", a.await?.dbg().await?),
             r#"Enum :: Transparent(
     42,
 )"#
@@ -65,7 +65,7 @@ async fn enum_inner_vc_debug() {
     run(&REGISTRATION, || async {
         let a: Vc<Enum> = Enum::Enum(Enum::None.resolved_cell()).cell();
         assert_eq!(
-            format!("{:?}", a.dbg().await?),
+            format!("{:?}", a.await?.dbg().await?),
             r#"Enum :: Enum(
     Enum :: None,
 )"#
@@ -80,7 +80,7 @@ async fn enum_inner_vc_debug() {
 async fn struct_unit_debug() {
     run(&REGISTRATION, || async {
         let a: Vc<StructUnit> = StructUnit.cell();
-        assert_eq!(format!("{:?}", a.dbg().await?), "StructUnit");
+        assert_eq!(format!("{:?}", a.await?.dbg().await?), "StructUnit");
         anyhow::Ok(())
     })
     .await
@@ -95,7 +95,7 @@ async fn struct_transparent_debug() {
         }
         .cell();
         assert_eq!(
-            format!("{:?}", a.dbg().await?),
+            format!("{:?}", a.await?.dbg().await?),
             r#"StructWithTransparent {
     transparent: 42,
 }"#
@@ -111,7 +111,7 @@ async fn struct_vec_debug() {
     run(&REGISTRATION, || async {
         let a: Vc<StructWithVec> = StructWithVec { vec: vec![] }.cell();
         assert_eq!(
-            format!("{:?}", a.dbg().await?),
+            format!("{:?}", a.await?.dbg().await?),
             r#"StructWithVec {
     vec: [],
 }"#
@@ -122,7 +122,7 @@ async fn struct_vec_debug() {
         }
         .cell();
         assert_eq!(
-            format!("{:?}", b.dbg().await?),
+            format!("{:?}", b.await?.dbg().await?),
             r#"StructWithVec {
     vec: [
         42,
@@ -144,7 +144,7 @@ async fn struct_ignore_debug() {
         }
         .cell();
         assert_eq!(
-            format!("{:?}", a.dbg().await?),
+            format!("{:?}", a.await?.dbg().await?),
             r#"StructWithIgnore {
     dont_ignore: 42,
 }"#

@@ -1,9 +1,13 @@
-use std::fmt::{Debug, Display};
+use std::{
+    fmt::{Debug, Display},
+    pin::Pin,
+};
 
+use anyhow::Result;
 use auto_hash_map::{AutoMap, AutoSet};
 use smallvec::SmallVec;
 use turbo_rcstr::RcStr;
-use turbo_tasks::{FxIndexMap, FxIndexSet, Vc};
+use turbo_tasks::{FxIndexMap, FxIndexSet};
 pub use turbo_tasks_macros::ValueDebugFormat;
 
 use crate::{self as turbo_tasks};
@@ -18,7 +22,6 @@ use internal::PassthroughDebug;
 ///
 /// We don't use [`Vc<RcStr>`][turbo_rcstr::RcStr] or [`String`] directly because we
 /// don't want the [`Debug`]/[`Display`] representations to be escaped.
-#[turbo_tasks::value]
 pub struct ValueDebugString(String);
 
 impl Debug for ValueDebugString {
@@ -42,8 +45,8 @@ impl ValueDebugString {
 
 impl ValueDebugString {
     /// Create a new `ValueDebugString` from a string.
-    pub fn new(s: String) -> Vc<Self> {
-        ValueDebugString::cell(ValueDebugString(s))
+    pub fn new(s: String) -> Self {
+        ValueDebugString(s)
     }
 }
 
@@ -57,12 +60,15 @@ impl ValueDebugString {
 /// ```
 #[turbo_tasks::value_trait(no_debug)]
 pub trait ValueDebug {
-    #[turbo_tasks::function]
-    fn dbg(self: Vc<Self>) -> Vc<ValueDebugString>;
+    fn dbg<'s>(&'s self) -> Pin<Box<dyn Future<Output = Result<ValueDebugString>> + Send + 's>> {
+        self.dbg_depth(usize::MAX)
+    }
 
     /// Like `dbg`, but with a depth limit.
-    #[turbo_tasks::function]
-    fn dbg_depth(self: Vc<Self>, depth: usize) -> Vc<ValueDebugString>;
+    fn dbg_depth<'s>(
+        &'s self,
+        depth: usize,
+    ) -> Pin<Box<dyn Future<Output = Result<ValueDebugString>> + Send + 's>>;
 }
 
 /// Use [autoref specialization] to implement [`ValueDebug`] for `T: Debug`.
@@ -427,7 +433,7 @@ impl ValueDebugFormatString<'_> {
     /// Convert the `ValueDebugFormatString` into a `Vc<ValueDebugString>`.
     ///
     /// This can fail when resolving `Vc` types.
-    pub async fn try_to_value_debug_string(self) -> anyhow::Result<Vc<ValueDebugString>> {
+    pub async fn try_to_value_debug_string(self) -> anyhow::Result<ValueDebugString> {
         Ok(ValueDebugString::new(self.try_to_string().await?))
     }
 }

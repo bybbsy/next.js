@@ -404,16 +404,11 @@ pub fn value(args: TokenStream, input: TokenStream) -> TokenStream {
         quote! {
             #[turbo_tasks::value_impl]
             impl turbo_tasks::debug::ValueDebug for #ident {
-                #[turbo_tasks::function]
-                async fn dbg(&self) -> anyhow::Result<turbo_tasks::Vc<turbo_tasks::debug::ValueDebugString>> {
+                fn dbg_depth<'s>(&'s self, depth: usize) -> ::std::pin::Pin<::std::boxed::Box<dyn Future<Output = ::anyhow::Result<turbo_tasks::debug::ValueDebugString>> + Send + 's>>  {
                     use turbo_tasks::debug::ValueDebugFormat;
-                    (&self.0).value_debug_format(usize::MAX).try_to_value_debug_string().await
-                }
-
-                #[turbo_tasks::function]
-                async fn dbg_depth(&self, depth: usize) -> anyhow::Result<turbo_tasks::Vc<turbo_tasks::debug::ValueDebugString>> {
-                    use turbo_tasks::debug::ValueDebugFormat;
-                    (&self.0).value_debug_format(depth).try_to_value_debug_string().await
+                    ::std::boxed::Box::pin(async move {
+                        (&self.0).value_debug_format(depth).try_to_value_debug_string().await
+                    })
                 }
             }
         }
