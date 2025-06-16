@@ -678,6 +678,13 @@ async fn into_plain_trace(traces: Vec<Vec<ReadRef<AssetIdent>>>) -> Result<Vec<P
                 .map(PlainTraceItem::from_asset_ident)
                 .try_join()
                 .await?;
+            // If an item is missing a layer infer it from its parent.
+            // Iterate in reverse order to efficiently handle sequences of absent layers.
+            for i in (0..plain_trace.len() - 1).rev() {
+                if plain_trace[i].layer.is_none() && plain_trace[i + 1].layer.is_some() {
+                    plain_trace[i].layer = plain_trace[i + 1].layer.clone();
+                }
+            }
 
             // After simplifying the trace, we may end up with apparent duplicates.
             // Consider this example:

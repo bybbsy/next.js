@@ -42,13 +42,13 @@ function runTests({ isDev }) {
          - Source code does not contain a <svg> root element
 
          Import traces:
-           #1:
+           Browser:
              ./test/integration/next-image-new/invalid-image-import/public/invalid.svg
-             ./test/integration/next-image-new/invalid-image-import/pages/index.js [Browser]
+             ./test/integration/next-image-new/invalid-image-import/pages/index.js
 
-           #2:
+           SSR:
              ./test/integration/next-image-new/invalid-image-import/public/invalid.svg
-             ./test/integration/next-image-new/invalid-image-import/pages/index.js [SSR]"
+             ./test/integration/next-image-new/invalid-image-import/pages/index.js"
         `)
       } else {
         expect(source).toMatchInlineSnapshot(`
