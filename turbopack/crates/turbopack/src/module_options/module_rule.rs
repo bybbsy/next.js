@@ -78,7 +78,7 @@ pub enum ModuleRuleEffect {
 }
 
 #[turbo_tasks::value(shared)]
-#[derive(Hash, Debug, Copy, Clone)]
+#[derive(Hash, Debug, Clone)]
 pub enum ModuleType {
     Ecmascript {
         transforms: ResolvedVc<EcmascriptInputTransforms>,

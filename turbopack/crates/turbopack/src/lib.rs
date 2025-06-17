@@ -568,7 +568,7 @@ async fn process_default_internal(
                         }
                     }
                     ModuleRuleEffect::ModuleType(module) => {
-                        current_module_type = Some(*module);
+                        current_module_type = Some(module.clone());
                     }
                     ModuleRuleEffect::ExtendEcmascriptTransforms { prepend, append } => {
                         current_module_type = match current_module_type {

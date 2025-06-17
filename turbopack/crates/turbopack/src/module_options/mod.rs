@@ -133,7 +133,7 @@ impl ModuleOptions {
             enable_mdx_rs,
             css:
                 CssOptionsContext {
-                    browserslist_query,
+                    ref browserslist_query,
                     enable_raw_css,
                     source_maps: css_source_maps,
                     ..

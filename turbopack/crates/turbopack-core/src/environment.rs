@@ -97,6 +97,20 @@ impl Environment {
     }
 
     #[turbo_tasks::function]
+    pub async fn browserslist_query(&self) -> Result<Vc<RcStr>> {
+        Ok(match self.execution {
+            ExecutionEnvironment::NodeJsBuildTime(..) | ExecutionEnvironment::NodeJsLambda(..) => {
+                todo!()
+            }
+            ExecutionEnvironment::Browser(browser_env) => {
+                Vc::cell(browser_env.await?.browserslist_query.clone())
+            }
+            ExecutionEnvironment::EdgeWorker(_) => todo!(),
+            ExecutionEnvironment::Custom(_) => todo!(),
+        })
+    }
+
+    #[turbo_tasks::function]
     pub fn node_externals(&self) -> Vc<bool> {
         match self.execution {
             ExecutionEnvironment::NodeJsBuildTime(..) | ExecutionEnvironment::NodeJsLambda(_) => {
