@@ -1268,12 +1268,10 @@ export default async function loadConfig(
     }
 
     // Clone a new userConfig each time to avoid mutating the original
-    const userConfig = {
-      ...(await normalizeConfig(
-        phase,
-        userConfigModule.default || userConfigModule
-      )),
-    } as NextConfig
+    const userConfig = deepClone(
+      await normalizeConfig(phase, userConfigModule.default || userConfigModule)
+    ) as NextConfig
+    console.log('userConfig', userConfig)
 
     if (!process.env.NEXT_MINIMAL) {
       // We only validate the config against schema in non minimal mode
@@ -1478,4 +1476,24 @@ export function getConfiguredExperimentalFeatures(
     }
   }
   return configuredExperimentalFeatures
+}
+
+function deepClone(obj: any): any {
+  if (
+    obj === null ||
+    typeof obj !== 'object' ||
+    obj instanceof Date ||
+    obj instanceof RegExp
+  ) {
+    return obj
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(deepClone)
+  }
+
+  return Object.keys(obj).reduce((acc, key) => {
+    ;(acc as any)[key] = deepClone(obj[key])
+    return acc
+  }, {})
 }
