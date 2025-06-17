@@ -4,6 +4,7 @@ use std::{
 };
 
 use anyhow::{Context, Result, anyhow};
+use browserslist::Distrib;
 use swc_core::ecma::preset_env::{Version, Versions};
 use turbo_rcstr::{RcStr, rcstr};
 use turbo_tasks::{ResolvedVc, TaskInput, Vc};
@@ -62,6 +63,13 @@ pub enum ExecutionEnvironment {
     Custom(u8),
 }
 
+async fn resolve_browserslist(browser_env: ResolvedVc<BrowserEnvironment>) -> Result<Vec<Distrib>> {
+    Ok(browserslist::resolve(
+        browser_env.await?.browserslist_query.split(','),
+        &browserslist::Opts::default(),
+    )?)
+}
+
 #[turbo_tasks::value_impl]
 impl Environment {
     #[turbo_tasks::function]
@@ -80,12 +88,9 @@ impl Environment {
         Ok(match self.execution {
             ExecutionEnvironment::NodeJsBuildTime(node_env, ..)
             | ExecutionEnvironment::NodeJsLambda(node_env) => node_env.runtime_versions(),
-            ExecutionEnvironment::Browser(browser_env) => {
-                Vc::cell(Versions::parse_versions(browserslist::resolve(
-                    browser_env.await?.browserslist_query.split(','),
-                    &browserslist::Opts::default(),
-                )?)?)
-            }
+            ExecutionEnvironment::Browser(browser_env) => Vc::cell(Versions::parse_versions(
+                resolve_browserslist(browser_env).await?,
+            )?),
             ExecutionEnvironment::EdgeWorker(_) => todo!(),
             ExecutionEnvironment::Custom(_) => todo!(),
         })

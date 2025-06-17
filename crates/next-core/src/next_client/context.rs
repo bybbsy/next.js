@@ -339,6 +339,7 @@ pub async fn get_client_module_options_context(
             ..Default::default()
         },
         css: CssOptionsContext {
+            browserslist_query: env.browserslist_query().to_resolved().await?,
             source_maps,
             ..Default::default()
         },
